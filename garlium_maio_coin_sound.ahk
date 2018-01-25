@@ -4,9 +4,9 @@
 DetectHiddenWindows, On	;needed for TrayIcon to be able to get tooltip of garlium system tray icon
 
 ;todo
+	;include unconfirmed balances, right now sound only plays once a new balance starts being confirmed
+;done todo
 	;save settings to file
-	;wait for confirm option
-	;wait for sound to complete option (,1)
 
 ;PLEASE READ: Change the following 3 values to suit your needs/preferences
 
