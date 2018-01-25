@@ -4,6 +4,7 @@ Play a sound whenever Garlium balance changes
 
 ```
 Changelog:
+	0.07	Included ability to set garlium executable in the settings.ini file if yours is differnt than "Garlium.exe"
 	0.06	Chosen sound is now saved in settings.ini file
 	0.05	Updated tray menu; added ability to choose/select sound
 		-To add custom sounds just add a .wav to the \r\wavs dir and re-open the program
@@ -15,7 +16,7 @@ Changelog:
 		
 todo
 	-include unconfirmed balances, right now sound only plays once a new balance starts being confirmed
-	-Automatically get garlium exe file name instead of it needing to be Garlium.exe or if different then specified in the .ahk code
+	-Automatically get garlium exe file name instead of it needing to be Garlium.exe or if different then specified in the ini file
 done todo
 	-save settings to file
 ```
