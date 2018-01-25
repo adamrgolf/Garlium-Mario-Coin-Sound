@@ -14,9 +14,13 @@ swing_val := 0.0 ;will only play sound if increase (or decrease) of this value
 
 garlium_exe:= "Garlium.exe" ;the exe name of your garlium
 
-coin_sound = smb_coin.wav	;which coin sound (located in the r folder) to play on increase
+coin_sound = smb_coin.wav	;which coin sound (located in the r folder) to play on increase by default if no value saved in settings ini
 
 ;PLEASE READ: Change the above 3 values to suit your needs/preferences
+
+settings_file = %A_ScriptDir%\settings.ini
+
+IniRead, coin_sound,%settings_file%,Sounds,Increase_Sound,%coin_sound%
 
 wav_dir = %A_ScriptDir%\r\wavs
 
@@ -27,6 +31,7 @@ Menu,Tray,NoStandard
 
 VersionLog =
 (Comments
+0.06	Chosen sound is now saved in settings.ini file
 0.05	Updated tray menu`; added ability to choose/select sound - to add custom sounds just add a .wav to the \r\wavs dir and re-open the program
 0.04	Quick fix regarding TrayIcon.ahk
 0.03	Cleaned up comments, readme & code a bit
@@ -71,6 +76,7 @@ SoundMenuHandler:
 	;MsgBox You selected %A_ThisMenuItem% from the menu %A_ThisMenu%.
 	SoundPlay,%wav_dir%\%A_ThisMenuItem%
 	coin_sound := A_ThisMenuItem
+	IniWrite,%A_ThisMenuItem%,%settings_file%,Sounds,Increase_Sound
 	GoSub,GetSounds
 return
 
