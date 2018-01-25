@@ -26,6 +26,7 @@ Menu,Tray,NoStandard
 
 VersionLog =
 (Comments
+0.08	Fixed a minor bug where sound would only start playing after 2nd increase in balance. Sound now plays on program startup indicating it can properly read the garlium.exe tray tip.
 0.07	Included ability to set garlium executable in the settings.ini file if yours is differnt than "Garlium.exe"
 0.06	Chosen sound is now saved in settings.ini file
 0.05	Updated tray menu`; added ability to choose/select sound - to add custom sounds just add a .wav to the \r\wavs dir and re-open the program
@@ -42,7 +43,7 @@ ProgramName := "Garlium Mario Coin Sound v" version1
 Menu,TestSubMenu,Add,Play Sound,PlaySound
 Menu,TestSubMenu,Add,Read Garlium Tray Tip,GetTip
 
-Menu,SoundSubMenu,Add ;,Test Sound,PlaySound
+Menu,SoundSubMenu,Add
 
 Menu,Tray,Add,Test, :TestSubMenu
 Menu,Tray,Add,Sound, :SoundSubMenu
@@ -56,14 +57,13 @@ Menu,Tray,Icon,r\garlicoin_icon.ico
 
 Menu,Tray,Default,About
 
-;test=1 ;just a test var to test if sound works
-
 GoSub,GetSounds
 
-GoSub,PlaySound
-
 startup=1
+
 GoSub,GetTip
+
+old_val=0
 
 GoSub,WinCheck
 
@@ -72,7 +72,6 @@ SetTimer,WinCheck,2500 ;every 2.5 seconds
 Return
 
 SoundMenuHandler:
-	;MsgBox You selected %A_ThisMenuItem% from the menu %A_ThisMenu%.
 	SoundPlay,%wav_dir%\%A_ThisMenuItem%
 	coin_sound := A_ThisMenuItem
 	IniWrite,%A_ThisMenuItem%,%settings_file%,Sounds,Increase_Sound
@@ -108,7 +107,6 @@ Return
 
 PlaySound:
 	SoundPlay,%wav_dir%\%coin_sound%
-	;Notify("test")
 Return
 
 WinCheck:
@@ -116,19 +114,19 @@ WinCheck:
 	fp := RegExMatch(garlium,"m)Tooltip:\sBalance:\s(.+?)\sGRLC",grlc)
 	If fp > 0
 		{
-			If (grlc1 >= old_val + swing_val) OR (grlc1 <= old_val - swing_val) OR (old_val = NULL) OR (test=1)
+			If (grlc1 >= old_val + swing_val) OR (grlc1 <= old_val - swing_val) OR (old_val = NULL)
 				{
-					If (old_val <> NULL) OR (test=1)
+					If (old_val <> NULL)
 						{
 							;initial balance
-							If (grlc1 > old_val) OR (test=1)
+							If (grlc1 > old_val)
 								{
 									;increase in balance
 						   		GoSub,PlaySound
 								}
 							If (grlc1 < old_val)
 								{
-									;decrease in balance
+									;decrease in balance, does nothing right now
 								}
 						}
 					old_val := grlc1
