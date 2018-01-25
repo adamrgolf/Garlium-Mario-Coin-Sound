@@ -7,7 +7,7 @@ DetectHiddenWindows, On	;needed for TrayIcon to be able to get tooltip of garliu
 
 swing_val := 0.0 ;will only play sound if increase (or decrease) of this value
 
-garlium_exe:= "Garlium.exe" ;the exe name of your garlium
+garlium_exe := "Garlium.exe" ;the exe name of your garlium
 
 coin_sound = smb_coin.wav	;which coin sound (located in the r folder) to play on increase by default if no value saved in settings ini
 
@@ -16,9 +16,9 @@ coin_sound = smb_coin.wav	;which coin sound (located in the r folder) to play on
 settings_file = %A_ScriptDir%\settings.ini
 
 IniRead, coin_sound,%settings_file%,Sounds,Increase_Sound,%coin_sound%
+IniRead, garlium_exe,%settings_file%,Garlium,EXE_File,%garlium_exe%
 
 wav_dir = %A_ScriptDir%\r\wavs
-
 
 ;#Include,%A_ScriptDir%\r\TrayIcon.ahk
 
@@ -26,6 +26,7 @@ Menu,Tray,NoStandard
 
 VersionLog =
 (Comments
+0.07	Included ability to set garlium executable in the settings.ini file if yours is differnt than "Garlium.exe"
 0.06	Chosen sound is now saved in settings.ini file
 0.05	Updated tray menu`; added ability to choose/select sound - to add custom sounds just add a .wav to the \r\wavs dir and re-open the program
 0.04	Quick fix regarding TrayIcon.ahk
@@ -61,6 +62,9 @@ GoSub,GetSounds
 
 GoSub,PlaySound
 
+startup=1
+GoSub,GetTip
+
 GoSub,WinCheck
 
 SetTimer,WinCheck,2500 ;every 2.5 seconds
@@ -92,10 +96,14 @@ Return
 GetTip:
 	garliumt := TrayIcon(garlium_exe)
 	fp := RegExMatch(garliumt,"m)Tooltip:\sBalance:\s(.+?)\sGRLC",grlc2)
-	If fp > 0
-		MsgBox,,Garlium Tray Tip,%garliumt%`n`nBalance: %grlc21%`n`nAble to read Garlium tray tip!
+	If (fp > 0)
+		{
+			If (startup<>1)
+				MsgBox,,Garlium Tray Tip,%garliumt%`n`nBalance: %grlc21%`n`nAble to read Garlium tray tip!
+		}
 	Else
-		MsgBox,,Doh!,Unable to find/read Garlium Tray Tip
+		MsgBox,,Doh!,%ProgramName%`n`nUnable to find/read Garlium Tray Tip, no "%garlium_exe%" process running. Ensure Garlium is running or if your garlium exe is different than %garlium_exe%, please specify it in the settings.ini file and reload this program.
+	startup=0
 Return
 
 PlaySound:
