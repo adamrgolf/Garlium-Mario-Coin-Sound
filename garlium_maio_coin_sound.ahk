@@ -3,11 +3,6 @@
 #NoEnv
 DetectHiddenWindows, On	;needed for TrayIcon to be able to get tooltip of garlium system tray icon
 
-;todo
-	;include unconfirmed balances, right now sound only plays once a new balance starts being confirmed
-;done todo
-	;save settings to file
-
 ;PLEASE READ: Change the following 3 values to suit your needs/preferences
 
 swing_val := 0.0 ;will only play sound if increase (or decrease) of this value

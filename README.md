@@ -14,12 +14,14 @@ Changelog:
 		
 todo
 	-include unconfirmed balances, right now sound only plays once a new balance starts being confirmed
+	-Automatically get garlium exe file name instead of it needing to be Garlium.exe or if different then specified in the .ahk code
 done todo
 	-save settings to file
 ```
 
 Tested on Win7x64 by me & Win10Pro by Corrupttothegnomes (Thanks!!)
 
-If you'd like to donate to me as a way to say thanks, you can send GRLC to GbtNMFaZtiWMahhvuc8A8qttSEJamUJs39
+If you'd like to donate to me as a way to say thanks, you can send GRLC to:
+##GbtNMFaZtiWMahhvuc8A8qttSEJamUJs39
 
 Thanks!!
