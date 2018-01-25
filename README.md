@@ -19,6 +19,7 @@ todo
 	-include unconfirmed balances, right now sound only plays once a new balance starts being confirmed
 	-Automatically get garlium exe file name instead of it needing to be Garlium.exe or if different then specified in the ini file
 	-Include Pushover support
+	-Include option to change sound alert volume
 done todo
 	-save settings to file
 ```
