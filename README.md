@@ -18,6 +18,8 @@ done todo
 	-save settings to file
 ```
 
+Tested on Win7x64 by me & Win10Pro by Corrupttothegnomes (Thanks!!)
+
 If you'd like to donate to me as a way to say thanks, you can send GRLC to GbtNMFaZtiWMahhvuc8A8qttSEJamUJs39
 
 Thanks!!
