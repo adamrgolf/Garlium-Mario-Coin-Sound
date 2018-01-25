@@ -17,7 +17,7 @@ coin_sound = smb_coin.wav	;which coin sound (located in the r folder) to play on
 
 
 
-#Include,r\TrayIcon.ahk
+#Include,%A_ScriptDir%\r\TrayIcon.ahk
 
 Menu,Tray,NoStandard
 
