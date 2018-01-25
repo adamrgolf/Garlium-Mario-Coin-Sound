@@ -3,11 +3,14 @@
 #NoEnv
 DetectHiddenWindows, On	;needed for TrayIcon to be able to get tooltip of garlium system tray icon
 
-
+;todo
+	;save settings to file
+	;wait for confirm option
+	;wait for sound to complete option (,1)
 
 ;PLEASE READ: Change the following 3 values to suit your needs/preferences
 
-swing_val := 0 ;will only play sound if increase (or decrease) of this value
+swing_val := 0.0 ;will only play sound if increase (or decrease) of this value
 
 garlium_exe:= "Garlium.exe" ;the exe name of your garlium
 
@@ -15,6 +18,7 @@ coin_sound = smb_coin.wav	;which coin sound (located in the r folder) to play on
 
 ;PLEASE READ: Change the above 3 values to suit your needs/preferences
 
+wav_dir = %A_ScriptDir%\r\wavs
 
 
 ;#Include,%A_ScriptDir%\r\TrayIcon.ahk
@@ -23,7 +27,8 @@ Menu,Tray,NoStandard
 
 VersionLog =
 (Comments
-0.04	Quick fix regarding trayicon.ahk
+0.05	Updated tray menu`; added ability to choose/select sound - to add custom sounds just add a .wav to the \r\wavs dir and re-open the program
+0.04	Quick fix regarding TrayIcon.ahk
 0.03	Cleaned up comments, readme & code a bit
 0.02	Cleanup code, add/polish features and add to github
 0.01	Initial quick release for https://www.reddit.com/r/garlicoin/comments/7snhqg/garlium_notification_mario_coin_sound/
@@ -31,12 +36,15 @@ VersionLog =
 
 RegExMatch(VersionLog,"^(.+?)\s",version)
 
-ProgramName := "Garlium Mario Coin Sound" version1
+ProgramName := "Garlium Mario Coin Sound v" version1
 
-Menu,TestSubMenu,Add,Test Sound,PlaySound
-Menu,TestSubMenu,Add,Test Garlium Tray Tip,GetTip
+Menu,TestSubMenu,Add,Play Sound,PlaySound
+Menu,TestSubMenu,Add,Read Garlium Tray Tip,GetTip
+
+Menu,SoundSubMenu,Add ;,Test Sound,PlaySound
 
 Menu,Tray,Add,Test, :TestSubMenu
+Menu,Tray,Add,Sound, :SoundSubMenu
 Menu,Tray,Add,About,About_diag
 Menu,Tray,Add,
 Menu,Tray,Add,Exit,ExitTray
@@ -45,12 +53,35 @@ Menu,Tray,Tip,% ProgramName
 
 Menu,Tray,Icon,r\garlicoin_icon.ico
 
+Menu,Tray,Default,About
+
 ;test=1 ;just a test var to test if sound works
+
+GoSub,GetSounds
+
+GoSub,PlaySound
 
 GoSub,WinCheck
 
 SetTimer,WinCheck,2500 ;every 2.5 seconds
 
+Return
+
+SoundMenuHandler:
+	;MsgBox You selected %A_ThisMenuItem% from the menu %A_ThisMenu%.
+	SoundPlay,%wav_dir%\%A_ThisMenuItem%
+	coin_sound := A_ThisMenuItem
+	GoSub,GetSounds
+return
+
+GetSounds:
+	Menu,SoundSubMenu,DeleteAll
+	Loop,Files,%wav_dir%\*.wav
+		{
+			Menu,SoundSubMenu,Add,%A_LoopFileName%,SoundMenuHandler
+			If (A_LoopFileName = coin_sound)
+				Menu,SoundSubMenu,Check,%A_LoopFileName%
+		}
 Return
 
 About_diag:
@@ -61,13 +92,13 @@ GetTip:
 	garliumt := TrayIcon(garlium_exe)
 	fp := RegExMatch(garliumt,"m)Tooltip:\sBalance:\s(.+?)\sGRLC",grlc2)
 	If fp > 0
-		MsgBox,,Garlium Tray Tip,%garliumt%`n`n%grlc21%
+		MsgBox,,Garlium Tray Tip,%garliumt%`n`nBalance: %grlc21%`n`nAble to read Garlium tray tip!
 	Else
 		MsgBox,,Doh!,Unable to find/read Garlium Tray Tip
 Return
 
 PlaySound:
-	SoundPlay,%A_ScriptDir%\r\%coin_sound%,1
+	SoundPlay,%wav_dir%\%coin_sound%
 	;Notify("test")
 Return
 
@@ -84,7 +115,7 @@ WinCheck:
 							If (grlc1 > old_val) OR (test=1)
 								{
 									;increase in balance
-									GoSub,PlaySound
+						   		GoSub,PlaySound
 								}
 							If (grlc1 < old_val)
 								{
@@ -99,6 +130,8 @@ Return
 ExitTray:
 	ExitApp
 Return
+
+;TrayIcon.ahk included below which is used to get the tray tip text from the garlium.exe system tray icon
 
 ;?add 2010 Modified by Tuncay to work with the stdlib mechanism.
 ;?add The function names are changed, mostly a prefix Tray_ is 
