@@ -26,6 +26,7 @@ Menu,Tray,NoStandard
 
 VersionLog =
 (Comments
+0.09	Included ability to read Garlium system tray icon tooltip even if the icon is hidden in the ^ notification area.
 0.08	Fixed a minor bug where sound would only start playing after 2nd increase in balance. Sound now plays on program startup indicating it can properly read the garlium.exe tray tip.
 0.07	Included ability to set garlium executable in the settings.ini file if yours is differnt than "Garlium.exe"
 0.06	Chosen sound is now saved in settings.ini file
@@ -94,7 +95,9 @@ Return
 
 GetTip:
 	garliumt := TrayIcon(garlium_exe)
-	fp := RegExMatch(garliumt,"m)Tooltip:\sBalance:\s(.+?)\sGRLC",grlc2)
+	garliumt_h := TrayIconHidden(garlium_exe)
+	garliumtb := garliumt A_Space garliumt_h
+	fp := RegExMatch(garliumtb,  "m)Tooltip:\sBalance:\s(.+?)\sGRLC",grlc2)
 	If (fp > 0)
 		{
 			If (startup<>1)
@@ -110,8 +113,9 @@ PlaySound:
 Return
 
 WinCheck:
-	garlium := TrayIcon(garlium_exe)
-	fp := RegExMatch(garlium,"m)Tooltip:\sBalance:\s(.+?)\sGRLC",grlc)
+	garliumt_h := TrayIconHidden(garlium_exe)
+	garliumtb := garliumt A_Space garliumt_h
+	fp := RegExMatch(garliumtb,"m)Tooltip:\sBalance:\s(.+?)\sGRLC",grlc)
 	If fp > 0
 		{
 			If (grlc1 >= old_val + swing_val) OR (grlc1 <= old_val - swing_val) OR (old_val = NULL)
@@ -185,6 +189,45 @@ TrayIcon(sExeName = "")
 	Loop,	%ErrorLevel%
 	{
 		SendMessage, 0x417, A_Index-1, pProc, ToolbarWindow32%idxTB%, ahk_class Shell_TrayWnd   ; TB_GETBUTTON
+		VarSetCapacity(btn,32,0), VarSetCapacity(nfo,32,0)
+		DllCall("ReadProcessMemory", "Uint", hProc, "Uint", pProc, "Uint", &btn, "Uint", 32, "Uint", 0)
+			iBitmap	:= NumGet(btn, 0)
+			idn	:= NumGet(btn, 4)
+			Statyle := NumGet(btn, 8)
+		If	dwData	:= NumGet(btn,12)
+			iString	:= NumGet(btn,16)
+		Else	dwData	:= NumGet(btn,16,"int64"), iString:=NumGet(btn,24,"int64")
+		DllCall("ReadProcessMemory", "Uint", hProc, "Uint", dwData, "Uint", &nfo, "Uint", 32, "Uint", 0)
+		If	NumGet(btn,12)
+			hWnd	:= NumGet(nfo, 0)
+		,	uID	:= NumGet(nfo, 4)
+		,	nMsg	:= NumGet(nfo, 8)
+		,	hIcon	:= NumGet(nfo,20)
+		Else	hWnd	:= NumGet(nfo, 0,"int64"), uID:=NumGet(nfo, 8), nMsg:=NumGet(nfo,12)
+		WinGet, pid, PID,              ahk_id %hWnd%
+		WinGet, sProcess, ProcessName, ahk_id %hWnd%
+		WinGetClass, sClass,           ahk_id %hWnd%
+		If !sExeName || (sExeName = sProcess) || (sExeName = pid)
+			VarSetCapacity(sTooltip,128), VarSetCapacity(wTooltip,128*2)
+		,	DllCall("ReadProcessMemory", "Uint", hProc, "Uint", iString, "Uint", &wTooltip, "Uint", 128*2, "Uint", 0)
+		,	DllCall("WideCharToMultiByte", "Uint", 0, "Uint", 0, "str", wTooltip, "int", -1, "str", sTooltip, "int", 128, "Uint", 0, "Uint", 0)
+		,	sTrayIcons .= "idx: " . A_Index-1 . " | idn: " . idn . " | Pid: " . pid . " | uID: " . uID . " | MessageID: " . nMsg . " | hWnd: " . hWnd . " | Class: " . sClass . " | Process: " . sProcess . "`n" . "   | Tooltip: " . sTooltip . "`n"
+	}
+	DllCall("VirtualFreeEx", "Uint", hProc, "Uint", pProc, "Uint", 0, "Uint", 0x8000)
+	DllCall("CloseHandle", "Uint", hProc)
+	Return	sTrayIcons
+}
+
+TrayIconHidden(sExeName = "")
+{
+	WinGet,	pidTaskbar, PID, ahk_class NotifyIconOverflowWindow
+	hProc:=	DllCall("OpenProcess", "Uint", 0x38, "int", 0, "Uint", pidTaskbar)
+	pProc:=	DllCall("VirtualAllocEx", "Uint", hProc, "Uint", 0, "Uint", 32, "Uint", 0x1000, "Uint", 0x4)
+	idxTB:=	TrayIcon_GetTrayBar()
+		SendMessage, 0x418, 0, 0, ToolbarWindow321, ahk_class NotifyIconOverflowWindow   ; TB_BUTTONCOUNT
+	Loop,	%ErrorLevel%
+	{
+		SendMessage, 0x417, A_Index-1, pProc, ToolbarWindow321, ahk_class NotifyIconOverflowWindow   ; TB_GETBUTTON
 		VarSetCapacity(btn,32,0), VarSetCapacity(nfo,32,0)
 		DllCall("ReadProcessMemory", "Uint", hProc, "Uint", pProc, "Uint", &btn, "Uint", 32, "Uint", 0)
 			iBitmap	:= NumGet(btn, 0)
