@@ -26,6 +26,7 @@ Menu,Tray,NoStandard
 
 VersionLog =
 (Comments
+0.10	bug-fix for wincheck routine
 0.09	Included ability to read Garlium system tray icon tooltip even if the icon is hidden in the ^ notification area.
 0.08	Fixed a minor bug where sound would only start playing after 2nd increase in balance. Sound now plays on program startup indicating it can properly read the garlium.exe tray tip.
 0.07	Included ability to set garlium executable in the settings.ini file if yours is differnt than "Garlium.exe"
@@ -90,6 +91,7 @@ GetSounds:
 Return
 
 About_diag:
+	GoSub,PlaySound
 	MsgBox,,About %ProgramName%,Created by adamrgolf`n`nVersion history:`n%VersionLog%
 Return
 
@@ -97,11 +99,14 @@ GetTip:
 	garliumt := TrayIcon(garlium_exe)
 	garliumt_h := TrayIconHidden(garlium_exe)
 	garliumtb := garliumt A_Space garliumt_h
-	fp := RegExMatch(garliumtb,  "m)Tooltip:\sBalance:\s(.+?)\sGRLC",grlc2)
+	fp := RegExMatch(garliumtb,"m)Tooltip:\sBalance:\s(.+?)\sGRLC",grlc)
 	If (fp > 0)
 		{
 			If (startup<>1)
-				MsgBox,,Garlium Tray Tip,%garliumt%`n`nBalance: %grlc21%`n`nAble to read Garlium tray tip!
+				{
+					GoSub,PlaySound
+					MsgBox,,Garlium Tray Tip,%garliumtb%`n`nBalance: %grlc1%`n`nAble to read Garlium tray tip!
+				}
 		}
 	Else
 		MsgBox,,Doh!,%ProgramName%`n`nUnable to find/read Garlium Tray Tip, no "%garlium_exe%" process running. Ensure Garlium is running or if your garlium exe is different than %garlium_exe%, please specify it in the settings.ini file and reload this program.
@@ -113,11 +118,13 @@ PlaySound:
 Return
 
 WinCheck:
+	garliumt := TrayIcon(garlium_exe)
 	garliumt_h := TrayIconHidden(garlium_exe)
 	garliumtb := garliumt A_Space garliumt_h
 	fp := RegExMatch(garliumtb,"m)Tooltip:\sBalance:\s(.+?)\sGRLC",grlc)
 	If fp > 0
 		{
+			;tooltip % grlc1
 			If (grlc1 >= old_val + swing_val) OR (grlc1 <= old_val - swing_val) OR (old_val = NULL)
 				{
 					If (old_val <> NULL)
