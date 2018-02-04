@@ -4,6 +4,7 @@ Play a sound whenever Garlium balance changes
 
 ```
 Changelog:
+	0.10	bug-fix for wincheck routine
 	0.09	Included ability to read Garlium system tray icon tooltip even if the icon is hidden in the ^ notification area.
 	0.08	Fixed a minor bug where sound would only start playing after 2nd increase in balance. Sound now plays on program startup indicating it can properly read the garlium.exe tray tip.
 	0.07	Included ability to set garlium executable in the settings.ini file if yours is differnt than "Garlium.exe"
